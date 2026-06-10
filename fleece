@@ -14,6 +14,7 @@ import re
 import sys
 import types
 import json
+import logging
 
 from numpydoc.docscrape import NumpyDocString, Parameter
 import rst_to_myst
@@ -21,6 +22,18 @@ import rst_to_myst
 
 def is_submodule(child: types.ModuleType, parent: types.ModuleType) -> bool:
     return child.__name__.startswith(parent.__name__ + ".")
+
+
+def belongs_to_package(member: object, top_pkg_name: str) -> bool:
+    """Return True when a member is defined by the target package."""
+    if inspect.ismodule(member):
+        module_name = getattr(member, "__name__", "")
+    else:
+        module_name = getattr(member, "__module__", "")
+
+    return bool(module_name) and (
+        module_name == top_pkg_name or module_name.startswith(top_pkg_name + ".")
+    )
 
 
 def rst2myst(rst: str | list) -> str:
@@ -31,7 +44,35 @@ def rst2myst(rst: str | list) -> str:
 
 
 def walk_mod(mod: types.ModuleType, path: str = "") -> dict:
-    members_names = mod.__all__
+    logging.debug(f"{BLUE}Walking module {mod.__name__} at path {path}{RESET}")
+    top_pkg_name = path.split(".")[0]
+
+    members_names = []
+    for dir_item in getattr(mod, "__all__", dir(mod)):
+        if dir_item.startswith("__") and dir_item.endswith("__"):
+            logging.debug(
+                f"{ORANGE}Skipping dunder member {dir_item} of module {mod.__name__}.{RESET}"
+            )
+            continue
+
+        if not hasattr(mod, dir_item):
+            logging.debug(
+                f"{ORANGE}Skipping missing member {dir_item} declared on module {mod.__name__}.{RESET}"
+            )
+            continue
+
+        member = getattr(mod, dir_item)
+        if not belongs_to_package(member, top_pkg_name):
+            logging.debug(
+                f"{ORANGE}Skipping third-party member {dir_item} from {getattr(member, '__module__', getattr(member, '__name__', 'unknown'))}.{RESET}"
+            )
+            continue
+
+        logging.debug(
+            f"{GREEN}Adding member {dir_item} of module {mod.__name__} to selection.{RESET}"
+        )
+        members_names.append(dir_item)
+
     out = {}
 
     for member_name in members_names:
@@ -55,14 +96,14 @@ def walk_mod(mod: types.ModuleType, path: str = "") -> dict:
                 if references:
                     reference_list = [
                         " ".join(p.split())
-                        for p in re.split(r'\[\^footnote-\d+\]:', references)
+                        for p in re.split(r"\[\^footnote-\d+\]:", references)
                         if p.strip()
                     ]
                     # Perhaps we want to simply link to the DOI, but for now
                     # this provides a nice hover with the full citation
                     # and a link
                     reference_list_with_doi = [
-                        re.sub(r'\{DOI\}`([^`]+)`', r'[](doi:\1)', entry)
+                        re.sub(r"\{DOI\}`([^`]+)`", r"[](doi:\1)", entry)
                         for entry in reference_list
                     ]
                     npdoc["References"] = reference_list_with_doi
@@ -87,16 +128,36 @@ def walk_mod(mod: types.ModuleType, path: str = "") -> dict:
 
 
 if __name__ == "__main__":
-    YELLOW = "\033[1;33m"
+    YELLOW_BOLD = "\033[1;33m"
+    ORANGE = "\033[38;5;208m"
+    YELLOW = "\033[33m"
+    GREEN = "\033[32m"
+    RED = "\033[31m"
+    BLUE = "\033[34m"
     RESET = "\033[0m"
+    log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
     parser = argparse.ArgumentParser(
         prog="fleece",
         description=f"{YELLOW}🟨{RESET} Fleece extracts a Python package's numpydoc-formatted docstrings as JSON. "
         "Currently, this is for use by the myst-apidoc-plugin only.",
     )
-    parser.add_argument("package", help="The package to index (can also be submodule, e.g. skimage.morphology")
+    parser.add_argument(
+        "package",
+        help="The package to index (can also be submodule, e.g. skimage.morphology",
+    )
+    parser.add_argument(
+        "--log-level",
+        default="WARNING",
+        choices=log_levels,
+        help="Set logging verbosity (default: WARNING).",
+    )
     args = parser.parse_args()
+
+    logging.basicConfig(
+        level=getattr(logging, args.log_level),
+        format="%(levelname)s - %(message)s",
+    )
 
     pkgname = args.package
     pkg = importlib.import_module(pkgname)

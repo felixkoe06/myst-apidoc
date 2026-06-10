@@ -39,7 +39,7 @@ fleece skimage > skimage-api.json
 In your markdown you may now reference the generator JSON output to render the full documentation:
 
 ```md
-:::{apidoc} ./skimage-api.json
+:::{apidoc} ./<path_relative_to_myst.yml>/skimage-api.json
 :::
 ```
 
