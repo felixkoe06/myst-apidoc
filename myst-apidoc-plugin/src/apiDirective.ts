@@ -67,20 +67,25 @@ export function parameterListToMdast(
   return [{
     type: 'div',
     children: [{
-      type: 'heading',
-      depth: opts.depth,
-      children: [
-        {
-          type: 'text',
-          value: name,
-        },
-      ],
+      type: "div",
+      children: [{
+        type: 'heading',
+        depth: opts.depth,
+        children: [
+          {
+            type: 'text',
+            value: name,
+          },
+      ],}],
+      style: styles["HEADING_BOX"]
     },
     {
+      type: "div",
+      children: [{
       type: 'definitionList',
-      children: params.map((param) => parameterToMdast(param, parse)).flat(),
+      children: params.map((param) => parameterToMdast(param, parse)).flat(),}],
+      style: styles["INDENTED_BOX"]
     },],
-    style: styles["INDENTED_BOX"]
   }
   ];
 }
