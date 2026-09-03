@@ -8,6 +8,8 @@ import type {
 } from 'myst-common';
 import type { Func, Module, Options, Parameter, Parser, Submodule } from './types.js';
 import type { VFile } from 'vfile';
+import {styles} from './styles.js';
+import {text, span, div, emphasis, strong, linebreak} from "./unist.js";
 
 export function optsToLabel(opts: Options) {
   const { module, submodule, function: func } = opts;
@@ -62,8 +64,9 @@ export function parameterListToMdast(
   opts: Options,
 ): GenericNode[] {
   if (params.length === 0) return [];
-  return [
-    {
+  return [{
+    type: 'div',
+    children: [{
       type: 'heading',
       depth: opts.depth,
       children: [
@@ -76,7 +79,9 @@ export function parameterListToMdast(
     {
       type: 'definitionList',
       children: params.map((param) => parameterToMdast(param, parse)).flat(),
-    },
+    },],
+    style: styles["INDENTED_BOX"]
+  }
   ];
 }
 
