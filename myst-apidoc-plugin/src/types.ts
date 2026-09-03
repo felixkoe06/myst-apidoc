@@ -1,5 +1,6 @@
 import type { DirectiveContext } from 'myst-common';
 
+// This schema is producer-agnostic: fleece and Griffe-based generators both emit it.
 export type Parser = DirectiveContext['parseMyst'];
 
 export type Parameter = {

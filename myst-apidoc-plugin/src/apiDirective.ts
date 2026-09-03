@@ -302,10 +302,10 @@ export function moduleToMdast(module: Module, parse: Parser, opts: Options): Gen
 
 export const apiDirective: DirectiveSpec = {
   name: 'apidoc',
-  doc: 'Directive for loading docstrings (currently from fleece output)',
+  doc: 'Directive for loading docstrings from a producer-agnostic JSON schema (fleece, Griffe-based, etc.)',
   arg: {
     type: String,
-    doc: 'File with fleece output',
+    doc: 'Path to the generated JSON file, optionally with a #submodule fragment.',
     required: true,
   },
   options: {
@@ -316,6 +316,12 @@ export const apiDirective: DirectiveSpec = {
     depth: {
       type: Number,
       doc: 'Starting heading depth',
+    },
+    pymodule: {
+      type: String,
+      // Not used at render time: read by external JSON generators (e.g. a
+      // Griffe-based script) to discover which Python module to introspect.
+      doc: 'Dotted Python import path documented by this block (metadata for JSON generators).',
     },
   },
   run(data: DirectiveData, vfile: VFile, ctx: DirectiveContext) {
