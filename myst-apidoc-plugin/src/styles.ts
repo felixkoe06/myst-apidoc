@@ -54,7 +54,8 @@ export var styles = {
     "INDENTED_BOX": {
         "display": "block",
         "width": "100%",
-        "padding-left": "2.5em"
+        "padding-left": "2.5em",
+        "padding-up": "0em"
     },
     "SEE_ALSO_OUTER": {
         "display": "block",
