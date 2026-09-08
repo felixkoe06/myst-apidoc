@@ -201,8 +201,9 @@ export function functionToMdast(
     section.push(...parameterListToMdast('Warns', func.Warns, parse, newOpts));
   }
   if (typeof func.Notes === 'string') {
-    section.push(
-      {
+    section.push(div(
+      div(
+      [{
         type: 'heading',
         depth: opts.depth + 1,
         children: [
@@ -211,8 +212,8 @@ export function functionToMdast(
             value: 'Notes',
           },
         ],
-      },
-      ...parse(func.Notes).children,
+      }], styles["BOLD_TEXT_WITH_HRULE"]),
+      ...parse(func.Notes).children)
     );
   }
   if (func.References) {
@@ -244,7 +245,9 @@ export function functionToMdast(
   }
   if (func.Examples) {
     section.push(
-      {
+      div([
+        div(
+      [{
         type: 'heading',
         depth: opts.depth + 1,
         children: [
@@ -253,12 +256,12 @@ export function functionToMdast(
             value: 'Examples',
           },
         ],
-      },
+      }], styles["BOLD_TEXT_WITH_HRULE"]), 
       {
         type: 'code',
         lang: 'python',
         value: func.Examples.join('\n'),
-      },
+      }])
     );
   }
   if (func['See Also'] && func['See Also'].length > 0) {
