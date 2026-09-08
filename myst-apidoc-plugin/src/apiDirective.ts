@@ -167,13 +167,14 @@ export function functionToMdast(
     submodule: opts.submodule,
     function: name,
   };
-  const section: GenericNode[] = [
+  const overhead: GenericNode[] = [
     {
       type: 'mystTarget',
       label: optsToLabel(newOpts),
     },
     signatureToMdast(name, func.Signature? func.Signature : ""),
   ];
+  const section: GenericNode[] = [];
 
 
   if (func.Summary) {
@@ -319,7 +320,8 @@ export function functionToMdast(
       }
     }
   }
-  return section;
+  overhead.push(div(section, styles["INDENTED_BOX"]))
+  return overhead;
 }
 
 export function submoduleToMdast(
