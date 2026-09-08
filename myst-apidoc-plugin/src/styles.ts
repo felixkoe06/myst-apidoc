@@ -18,7 +18,7 @@ export var styles = {
         "font-family": "monospace",
         "font-weight": "bold"
     },
-    "export functionAULT_VAL": {
+    "DEFAULT_VAL": {
         "display": "inline",
         "color": "black",
         "font-family": "monospace",

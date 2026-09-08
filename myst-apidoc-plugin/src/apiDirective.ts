@@ -6,7 +6,7 @@ import type {
   GenericParent,
   DirectiveContext,
 } from 'myst-common';
-import type { Func, Module, Options, Parameter, Parser, Submodule } from './types.js';
+import type { Func, Module, Options, Parameter, ParameterDefinition, Parser, Submodule } from './types.js';
 import type { VFile } from 'vfile';
 import {styles} from './styles.js';
 import {text, span, div, emphasis, strong, linebreak} from "./unist.js";
@@ -17,6 +17,73 @@ export function optsToLabel(opts: Options) {
   const middle = submodule ? `${submodule}${func ? '.' : ''}` : '';
   const end = func ? `${func}` : '';
   return `${start}${middle}${end}`;
+}
+
+export function signatureToMdast(function_name: string, signature: string){
+  const rawSig = signature.slice(1, -1);
+  const params = rawSig.split(", ");
+  let paramFormat: ParameterDefinition[] = [];
+  let openingBracket = [span([text("(")], styles["MONOSPACE_BOLD"])]
+  let closingBracket = [span([text(")")], styles["MONOSPACE_BOLD"])]
+  let comma = [span([text(", ")], styles["MONOSPACE_BOLD"])]
+  let formattedMethod = [
+    span([text(function_name)], styles["MONOSPACE_BOLD_PURPLE"])
+  ]
+  let resultList: GenericNode[][] = [];
+  params.forEach(
+    (value) => {
+      let paramSplit = value.split(" = ");
+      if (paramSplit.length > 1) {
+        paramFormat.push({
+          name: paramSplit[0],
+          default_val: paramSplit[1]
+        });
+      }
+      else {
+        paramFormat.push({
+          name: paramSplit[0],
+          default_val: ""
+        });
+      }
+    }
+  );
+  let argsList: GenericNode[][] = [];  
+
+  
+  paramFormat.forEach(
+    (value) => {
+      let arg_name = value.name;
+      let default_val = value.default_val;
+      if (default_val) {
+        argsList.push(
+          [
+            span([text(arg_name)], styles["MONOSPACE_BOLD_ITALICS"]),
+            span([text("=".concat(default_val))], styles["DEFAULT_VAL"])
+          ]
+        )
+      }
+      else {
+        argsList.push(
+          [span([text(arg_name)], styles["MONOSPACE_BOLD_ITALICS"])]
+        )
+      }
+    }
+  )
+  let reducedArgsList = argsList.reduce(
+    (val1, val2) => {
+      return val1.concat(comma, val2)
+    }
+  )
+  resultList.push(formattedMethod);
+  resultList.push(openingBracket);
+  resultList.push(reducedArgsList);
+  resultList.push(closingBracket);
+
+  return span(resultList.reduce(
+    (x, y) => {
+      return x.concat(y)
+    }
+  ))
 }
 
 export function parameterToMdast(param: Parameter, parse: Parser): GenericNode[] {
@@ -64,29 +131,26 @@ export function parameterListToMdast(
   opts: Options,
 ): GenericNode[] {
   if (params.length === 0) return [];
-  return [{
-    type: 'div',
-    children: [{
-      type: "div",
-      children: [{
-        type: 'heading',
-        depth: opts.depth,
-        children: [
-          {
-            type: 'text',
-            value: name,
-          },
-      ],}],
-      style: styles["HEADING_BOX"]
-    },
+  return [
+    div(
+      [div(
+        [{"type": "heading",
+          "depth": opts.depth,
+          "children": [
+            text(name)
+          ]
+        }]
+      )],
+      styles["HEADING_BOX"]
+    )
+    ,
     {
       type: "div",
       children: [{
       type: 'definitionList',
       children: params.map((param) => parameterToMdast(param, parse)).flat(),}],
       style: styles["INDENTED_BOX"]
-    },],
-  }
+    },
   ];
 }
 
@@ -118,6 +182,8 @@ export function functionToMdast(
       ],
     },
   ];
+
+
   if (func.Summary) {
     section.push(...parse(func.Summary.map((line) => line.trim()).join(' ')).children);
   }

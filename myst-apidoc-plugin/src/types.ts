@@ -9,6 +9,11 @@ export type Parameter = {
   desc: string;
 };
 
+export type ParameterDefinition = {
+  name: string;
+  default_val: string;
+}
+
 export type Func = {
   Summary?: string[]; // Trim then join with space is fine
   'Extended Summary'?: string | []; // String with new-line chars in it
