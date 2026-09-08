@@ -139,7 +139,8 @@ export function parameterListToMdast(
           "children": [
             text(name)
           ]
-        }]
+        }],
+        styles["BOLD_TEXT"]
       )],
       styles["HEADING_BOX"]
     )
