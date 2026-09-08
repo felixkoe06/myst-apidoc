@@ -171,16 +171,7 @@ export function functionToMdast(
       type: 'mystTarget',
       label: optsToLabel(newOpts),
     },
-    {
-      type: 'heading',
-      depth: opts.depth,
-      children: [
-        {
-          type: 'text',
-          value: name,
-        },
-      ],
-    },
+    signatureToMdast(name, func.Signature? func.Signature : ""),
   ];
 
 
