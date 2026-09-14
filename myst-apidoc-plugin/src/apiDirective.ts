@@ -9,7 +9,7 @@ import type {
 import type { Func, Module, Options, Parameter, ParameterDefinition, Parser, Submodule } from './types.js';
 import type { VFile } from 'vfile';
 import {styles} from './styles.js';
-import {text, span, div, emphasis, strong, linebreak} from "./unist.js";
+import {text, span, div, heading, emphasis, strong, linebreak} from "./unist.js";
 
 export function optsToLabel(opts: Options) {
   const { module, submodule, function: func } = opts;
@@ -19,7 +19,7 @@ export function optsToLabel(opts: Options) {
   return `${start}${middle}${end}`;
 }
 
-export function signatureToMdast(function_name: string, signature: string){
+export function signatureToMdast(function_name: string, signature: string, depth: number){
   const rawSig = signature.slice(1, -1);
   const params = rawSig.split(", ");
   let paramFormat: ParameterDefinition[] = [];
@@ -79,11 +79,12 @@ export function signatureToMdast(function_name: string, signature: string){
   resultList.push(reducedArgsList);
   resultList.push(closingBracket);
 
-  return span(resultList.reduce(
+  return heading(span(resultList.reduce(
     (x, y) => {
       return x.concat(y)
     }
-  ))
+  )), depth
+)
 }
 
 export function parameterToMdast(param: Parameter, parse: Parser): GenericNode[] {
@@ -172,7 +173,7 @@ export function functionToMdast(
       type: 'mystTarget',
       label: optsToLabel(newOpts),
     },
-    signatureToMdast(name, func.Signature? func.Signature : ""),
+    signatureToMdast(name, func.Signature? func.Signature : "", opts.depth),
   ];
   const section: GenericNode[] = [];
 

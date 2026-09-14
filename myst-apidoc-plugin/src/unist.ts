@@ -17,3 +17,7 @@ export function strong(children: GenericNode[]): GenericNode {
 export function linebreak(){
     return {"type": "break"}
 }
+
+export function heading(children: GenericNode[], depth: number): GenericNode{
+    return {"type": "heading", "children": children, "depth": depth}
+}
