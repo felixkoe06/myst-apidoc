@@ -79,12 +79,13 @@ export function signatureToMdast(function_name: string, signature: string, depth
   resultList.push(reducedArgsList);
   resultList.push(closingBracket);
 
-  return heading([span(resultList.reduce(
+  return div([heading([text(function_name)], depth, function_name),
+    span(resultList.reduce(
     (x, y) => {
       return x.concat(y)
     }
-  ))], depth, "TEST_LABEL"
-)
+  ))
+])
 }
 
 export function parameterToMdast(param: Parameter, parse: Parser): GenericNode[] {
