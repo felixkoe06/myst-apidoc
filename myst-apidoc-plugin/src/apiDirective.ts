@@ -79,11 +79,11 @@ export function signatureToMdast(function_name: string, signature: string, depth
   resultList.push(reducedArgsList);
   resultList.push(closingBracket);
 
-  return heading(span(resultList.reduce(
+  return heading([span(resultList.reduce(
     (x, y) => {
       return x.concat(y)
     }
-  )), depth
+  ))], depth
 )
 }
 
