@@ -18,6 +18,6 @@ export function linebreak(){
     return {"type": "break"}
 }
 
-export function heading(children: GenericNode[], depth: number): GenericNode{
-    return {"type": "heading", "children": children, "depth": depth}
+export function heading(children: GenericNode[], depth: number, label: string): GenericNode{
+    return {"type": "heading", "children": children, "depth": depth, "label": label}
 }

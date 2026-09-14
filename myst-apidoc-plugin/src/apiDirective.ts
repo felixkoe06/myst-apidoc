@@ -83,7 +83,7 @@ export function signatureToMdast(function_name: string, signature: string, depth
     (x, y) => {
       return x.concat(y)
     }
-  ))], depth
+  ))], depth, function_name
 )
 }
 
